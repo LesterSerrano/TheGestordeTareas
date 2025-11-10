@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <Target Name="BuildTailwindCSS" BeforeTargets="Build">
-    <Exec Command="tailwindcss.exe -i ./wwwroot/css/input.css -o ./wwwroot/css/site.css --minify"
+    <Exec Command="npx tailwindcss -i ./wwwroot/css/input.css -o ./wwwroot/css/site.css --minify"
           WorkingDirectory="$(ProjectDir)"
           ContinueOnError="false" />
   </Target>
