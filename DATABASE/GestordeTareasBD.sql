@@ -59,7 +59,7 @@ CREATE TABLE Proyecto (
     Titulo VARCHAR(50) NOT NULL,
     Descripcion VARCHAR(MAX) NOT NULL,
 	CodigoAcceso NVARCHAR(50) NOT NULL UNIQUE,
-	FechaFinalizacion DATE NOT NULL,
+	FechaFinalizacion DATETIME NOT NULL,
 	IdUsuario INT NOT NULL FOREIGN KEY REFERENCES Usuario(Id),
 	--CONSTRAINT UQ_CodigoAcceso UNIQUE (CodigoAcceso)
 );
