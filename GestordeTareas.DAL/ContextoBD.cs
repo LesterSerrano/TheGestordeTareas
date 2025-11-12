@@ -28,9 +28,10 @@ namespace GestordeTareas.DAL
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsbuilder)
         {
-            optionsbuilder.UseSqlServer(@"data source = desktop-l1nkjnu\sqlexpress; initial catalog = GestordeTareasBD; integrated security = true; encrypt = false; trustservercertificate =true");
+            optionsbuilder.UseSqlServer(@"Server=DESKTOP-J3V7N3S;Database=GestordeTareasBD ;Trusted_Connection=True;TrustServerCertificate=True");
 
         }
+// ConnectionStrings:DefaultConnection = Server=DESKTOP-J3V7N3S;Database=AuthServiceDB;Trusted_Connection=True;TrustServerCertificate=True;
 
 
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

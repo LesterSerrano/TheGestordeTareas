@@ -180,17 +180,6 @@ delete  from Comment
 
 --INSERT PARA LAS TABLAS CREADAS
 
--- Insertar datos en la tabla Cargo
-INSERT INTO Cargo (Nombre) VALUES ('Administrador'), ('Colaborador');
-
--- Insertar datos en la tabla Categoria
-INSERT INTO Categoria (Nombre) VALUES ('Informes'), ('Desarrollo'), ('Gestión');
-
--- Insertar datos en la tabla Prioridad
-INSERT INTO Prioridad (Nombre) VALUES ('Baja'), ('Media'), ('Alta');
-
--- Insertar datos en la tabla EstadoTarea
-INSERT INTO EstadoTarea (Nombre) VALUES ('Pendiente'), ('En Proceso'), ('Finalizada');
 
 -- Insertar datos en la tabla Usuario (Usuario administrador de ejemplo)
 INSERT INTO Usuario (Nombre, Apellido, NombreUsuario, Pass, Telefono, FechaNacimiento, FechaRegistro, [Status], IdCargo)
