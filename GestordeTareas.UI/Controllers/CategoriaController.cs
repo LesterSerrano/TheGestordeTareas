@@ -3,6 +3,9 @@ using GestordeTareas.BL;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
+using GestordeTareas.UI.DTOs.CategoriaDTOs;
+
 
 namespace GestordeTareas.UI.Controllers
 {
@@ -10,87 +13,113 @@ namespace GestordeTareas.UI.Controllers
     public class CategoriaController : Controller
     {
         private readonly CategoriaBL _categoriaBL;
+        private readonly IMapper _mapper;
 
-        public CategoriaController()
+        public CategoriaController(CategoriaBL categoriaBL, IMapper mapper)
         {
-            _categoriaBL = new CategoriaBL();
+            _categoriaBL = categoriaBL;
+            _mapper = mapper;
         }
 
-        public async Task<ActionResult> Index()
+        // GET: /Categoria
+        public async Task<IActionResult> Index()
         {
-            var categorias = await _categoriaBL.GetAllAsync();
-            return View("Index", categorias);
+            var categoriasEN = await _categoriaBL.GetAllAsync();
+            var categoriasDTO = _mapper.Map<IEnumerable<CategoriaReadDTO>>(categoriasEN);
+
+            return View("Index", categoriasDTO);
         }
 
-        public async Task<ActionResult> Details(int id)
+        // GET: /Categoria/Details/{id}
+        public async Task<IActionResult> Details(int id)
         {
-            var categoria = await _categoriaBL.GetById(new Categoria { Id = id });
-            return PartialView("Details", categoria);
+            var categoriaEN = await _categoriaBL.GetByIdAsync(id);
+            var categoriaDTO = _mapper.Map<CategoriaReadDTO>(categoriaEN);
+
+            return PartialView("Details", categoriaDTO);
         }
 
-        public ActionResult Create()
+        // GET: /Categoria/Create
+        public IActionResult Create()
         {
             return PartialView("Create");
         }
 
+        // POST: /Categoria/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(Categoria categoria)
+        public async Task<IActionResult> Create(CategoriaCreateDto dto)
         {
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Datos inválidos" });
+
             try
             {
-                await _categoriaBL.CreateAsync(categoria);
+                var categoriaEN = _mapper.Map<Categoria>(dto);
+                await _categoriaBL.CreateAsync(categoriaEN);
+
                 return Json(new { success = true, message = "Categoría creada correctamente." });
             }
             catch (Exception ex)
             {
-                ViewBag.Error = ex.Message;
                 return Json(new { success = false, message = $"Error al crear la categoría: {ex.Message}" });
             }
         }
 
-        public async Task<ActionResult> Edit(int id)
+        // GET: /Categoria/Edit/id
+        public async Task<IActionResult> Edit(int id)
         {
-            var categoria = await _categoriaBL.GetById(new Categoria { Id = id });
-            return PartialView("Edit", categoria);
+            var categoriaEN = await _categoriaBL.GetByIdAsync(id);
+            var dto = _mapper.Map<CategoriaUpdateDto>(categoriaEN);
+
+            return PartialView("Edit", dto);
         }
 
+        // POST: /Categoria/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, Categoria categoria)
+        public async Task<IActionResult> Edit(CategoriaUpdateDto dto)
         {
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Datos inválidos" });
+
             try
             {
-                await _categoriaBL.UpdateAsync(categoria);
+                var categoriaEN = _mapper.Map<Categoria>(dto);
+                await _categoriaBL.UpdateAsync(categoriaEN);
+
                 return Json(new { success = true, message = "Categoría editada correctamente." });
             }
             catch (Exception ex)
             {
-                ViewBag.Error = ex.Message;
                 return Json(new { success = false, message = $"Error al editar la categoría: {ex.Message}" });
             }
         }
 
-        public async Task<ActionResult> Delete(int id)
+        // GET: /Categoria/Delete/id
+        public async Task<IActionResult> Delete(int id)
         {
-            var categoria = await _categoriaBL.GetById(new Categoria { Id = id });
-            return PartialView("Delete", categoria);
+            var categoriaEN = await _categoriaBL.GetByIdAsync(id);
+            var dto = _mapper.Map<CategoriaReadDTO>(categoriaEN);
+
+            return PartialView("Delete", dto);
         }
 
+        // POST: /Categoria/DeleteConfirmed
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(int id, Categoria categoria)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
             {
-                await _categoriaBL.DeleteAsync(categoria);
+                await _categoriaBL.DeleteAsync(id);
                 return Json(new { success = true, message = "Categoría eliminada correctamente." });
             }
             catch (Exception ex)
             {
-                ViewBag.Error = ex.Message;
                 return Json(new { success = false, message = $"Error al eliminar la categoría: {ex.Message}" });
             }
         }
     }
 }
+
