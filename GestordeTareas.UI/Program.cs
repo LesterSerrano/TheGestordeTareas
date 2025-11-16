@@ -16,8 +16,7 @@ var connectionString = builder.Configuration.GetConnectionString("GestordeTareas
 builder.Services.AddDbContext<ContextoBD>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDbContext<GestordeTareasUIContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<GestordeTareasUIContext>();
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-var configuration = builder.Configuration;
+//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 //REGISTRO DE INTERFACES
 builder.Services.AddScoped<IUsuarioDAL, UsuarioDAL>();
@@ -50,13 +49,24 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 var app = builder.Build();
 
+var googleConfig = builder.Configuration.GetSection("Authentication:Google");
 
-//autenticacion con Google
-//builder.Services.AddAuthentication().AddGoogle(googleOptions =>
-//{
-//    googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
-//    googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-//});
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie() // cookie principal para tu app
+.AddCookie("External") // cookie temporal usada por proveedores externos
+.AddGoogle("Google", googleOptions =>
+{
+    googleOptions.ClientId = googleConfig["ClientId"];
+    googleOptions.ClientSecret = googleConfig["ClientSecret"];
+    googleOptions.CallbackPath = "/signin-google";
+    googleOptions.SignInScheme = "External"; // IMPORTANT: almacena el principal en la cookie "External"
+});
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -71,9 +81,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAuthentication(); // poner en uso la autenticaci�n 
 
-app.UseAuthentication(); // poner en uso la autenticaci�n
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using GestordeTareas.UI.Helpers;
 using GestordeTareas.DAL;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.Google;
 
 
 namespace GestordeTareas.UI.Controllers
@@ -22,7 +23,7 @@ namespace GestordeTareas.UI.Controllers
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
 
-        public UsuarioController(UsuarioBL usuarioBL, CargoBL cargoBL, IEmailService emailService, Imapper mapper)
+        public UsuarioController(UsuarioBL usuarioBL, CargoBL cargoBL, IEmailService emailService, IMapper mapper)
         {
             _usuarioBL = usuarioBL;
             _cargoBL = cargoBL;
@@ -122,6 +123,91 @@ namespace GestordeTareas.UI.Controllers
         }
 
         [AllowAnonymous]
+        public IActionResult LoginGoogle(string returnUrl = "/")
+        {
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("GoogleCallback", "Usuario", new { returnUrl })
+            };
+            return Challenge(properties, "Google");
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> GoogleCallback(string returnUrl = "/")
+        {
+            var authenticateResult = await HttpContext.AuthenticateAsync("External");
+
+            if (!authenticateResult.Succeeded)
+                return RedirectToAction("Login");
+
+            var claims = authenticateResult.Principal.Claims;
+
+            string email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            string nombre = claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value ?? "Usuario";
+            string apellido = claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
+            string foto = claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+
+            if (email == null)
+            {
+                TempData["ErrorMessage"] = "Google no proporcionó un correo electrónico.";
+                return RedirectToAction("Login");
+            }
+
+            // Buscar si ya existe
+            var existingUser = await _usuarioBL.GetByNombreUsuarioAsync(new Usuario { NombreUsuario = email });
+
+            Usuario userDb;
+
+            if (existingUser == null)
+            {
+                // Crear nuevo usuario Google
+                userDb = new Usuario
+                {
+                    Nombre = nombre,
+                    Apellido = apellido,
+                    NombreUsuario = email,
+                    Pass = null,                  // Usuario Google no tiene contraseña
+                    Telefono = null,
+                    FechaNacimiento = null,
+                    Status = (byte)User_Status.ACTIVO,
+                    FechaRegistro = DateTime.Now,
+                    IdCargo = await _cargoBL.GetCargoColaboradorIdAsync(),
+                    FotoPerfil = foto ?? "/img/usuario.png"
+                };
+
+                await _usuarioBL.Create(userDb);
+            }
+            else
+            {
+                userDb = existingUser;
+            }
+
+            // Obtener cargo para roles
+            userDb.Cargo = await _cargoBL.GetById(new Cargo { Id = userDb.IdCargo });
+
+            // Crear las claims para tu cookie
+            var cookieClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, userDb.NombreUsuario),
+                new Claim(ClaimTypes.Role, userDb.Cargo.Nombre),
+                new Claim(ClaimTypes.GivenName, userDb.Nombre),
+                new Claim(ClaimTypes.Surname, userDb.Apellido ?? ""),
+                new Claim(ClaimTypes.NameIdentifier, userDb.Id.ToString()),
+                new Claim("FotoPerfil", userDb.FotoPerfil ?? "/img/usuario.png")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(cookieClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+            // Terminar autenticación externa
+            await HttpContext.SignOutAsync("External");
+
+            return Redirect(returnUrl);
+        }
+
+
+
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Usuario user, string returnUrl = null)
@@ -217,7 +303,7 @@ namespace GestordeTareas.UI.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                var cargoColaboradorId = await CargoDAL.GetCargoColaboradorIdAsync();
+                var cargoColaboradorId = await _cargoBL.GetCargoColaboradorIdAsync();
                 usuario.IdCargo = cargoColaboradorId;
 
                 await _usuarioBL.Create(usuario);

@@ -1,5 +1,6 @@
 ﻿using GestordeTaras.EN;
 using GestordeTareas.DAL;
+using GestordeTareas.DAL.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,30 +11,36 @@ namespace GestordeTareas.BL
 {
     public class CategoriaBL
     {
+        private readonly ICategoriaDAL _CategoriaDAL;
+
+        public CategoriaBL(ICategoriaDAL categoriaDAL)
+        {
+            _CategoriaDAL = categoriaDAL;
+        }
         public async Task<int> CreateAsync(Categoria categoria)
         {
-            return await CategoriaDAL.CreateAsync(categoria);
+            return await _CategoriaDAL.CreateAsync(categoria);
         }
         public async Task<int> UpdateAsync(Categoria categoria)
         {
-            return await CategoriaDAL.UpdateAsync(categoria);
+            return await _CategoriaDAL.UpdateAsync(categoria);
         }
         public async Task<int> DeleteAsync(Categoria categoria)
         {
-            return await CategoriaDAL.DeleteAsync(categoria);
+            return await _CategoriaDAL.DeleteAsync(categoria);
         }
 
-        public async Task<Categoria> GetById(Categoria categoria)
+        public async Task<Categoria> GetByIdAsync(Categoria categoria)
         {
-            return await CategoriaDAL.GetByIdAsync(categoria);
+            return await _CategoriaDAL.GetByIdAsync(categoria);
         }
         public async Task<List<Categoria>> GetAllAsync()
         {
-            return await CategoriaDAL.GetAllAsync();
+            return await _CategoriaDAL.GetAllAsync();
         }
         public async Task<List<Categoria>> SearchAsync(Categoria category)
         {
-            return await CategoriaDAL.SearchAsync(category);
+            return await _CategoriaDAL.SearchAsync(category);
         }
     }
 }

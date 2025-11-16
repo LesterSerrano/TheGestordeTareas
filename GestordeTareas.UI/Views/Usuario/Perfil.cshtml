@@ -86,7 +86,7 @@
                             <div>
                                 <label for="FechaNacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
                                 <input type="date" asp-for="FechaNacimiento" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                       value="@Model.FechaNacimiento.ToString("yyyy-MM-dd")" />
+                                       value="@Model.FechaNacimiento" />
                                 <span asp-validation-for="FechaNacimiento" class="text-red-500 text-sm"></span>
                             </div>
                             @if (User.IsInRole("Administrador"))
@@ -141,7 +141,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
-                                <p class="mt-1 text-sm text-gray-600">@Model.FechaNacimiento.ToString("dd/MM/yyyy")</p>
+                                <p class="mt-1 text-sm text-gray-600">@Model.FechaNacimiento</p>
                             </div>
                             @if (User.IsInRole("Administrador"))
                             {
