@@ -1,5 +1,5 @@
 ﻿using GestordeTaras.EN;
-using GestordeTareas.DAL;
+using GestordeTareas.DAL.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,25 +10,36 @@ namespace GestordeTareas.BL
 {
     public class PrioridadBL
     {
-        public async Task<int> CreateAsync(Prioridad prioridad)
+        private readonly IPrioridad _prioridadDAL;
+
+        public PrioridadBL(IPrioridad prioridadDAL)
         {
-            return await PrioridadDAL.CreateAsync(prioridad);
+            _prioridadDAL = prioridadDAL;
         }
-        public async Task<int> UpdateAsync(Prioridad prioridad)
+
+        public async Task<Prioridad> CreateAsync(Prioridad prioridad)
         {
-            return await PrioridadDAL.UpdateAsync(prioridad);
+            return await _prioridadDAL.CreatePrioridadAsync(prioridad);
         }
-        public async Task<int> DeleteAsync(Prioridad prioridad)
+
+        public async Task<Prioridad> UpdateAsync(Prioridad prioridad)
         {
-            return await PrioridadDAL.DeleteAsync(prioridad);
+            return await _prioridadDAL.UpdatePrioridadAsync(prioridad);
         }
-        public async Task<Prioridad> GetById(Prioridad prioridad)
+
+        public async Task<bool> DeleteAsync(int id)
         {
-            return await PrioridadDAL.GetByIdAsync(prioridad);
+            return await _prioridadDAL.DeletePrioridadAsync(id);
         }
-        public async Task<List<Prioridad>> GetAllAsync()
+
+        public async Task<Prioridad> GetByIdAsync(int id)
         {
-            return await PrioridadDAL.GetAllAsync();
+            return await _prioridadDAL.GetPrioridadByIdAsync(id);
+        }
+
+        public async Task<IEnumerable<Prioridad>> GetAllAsync()
+        {
+            return await _prioridadDAL.GetAllPrioridadesAsync();
         }
     }
 }

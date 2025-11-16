@@ -75,7 +75,7 @@ namespace GestordeTareas.DAL
             }
 
             // Agregar y guardar
-            _dbContext.Categoria.Add(categoria);
+            await _dbContext.Categoria.AddAsync(categoria);
             await _dbContext.SaveChangesAsync();
 
             // Retornar la categoría creada con su Id generado
