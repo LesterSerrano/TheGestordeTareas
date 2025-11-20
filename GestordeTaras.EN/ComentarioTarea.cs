@@ -17,8 +17,7 @@ namespace GestordeTaras.EN
         public int IdUsuario { get; set; }
 
         [Required]
-        [MaxLength(500)]
-        public string Comentario { get; set; }
+        public string Comentario { get; set; } //todo el texto
 
         [Required]
         public DateTime FechaCreacion { get; set; } = DateTime.Now;

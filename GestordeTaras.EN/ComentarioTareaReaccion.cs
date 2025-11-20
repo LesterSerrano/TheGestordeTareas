@@ -28,6 +28,4 @@ namespace GestordeTaras.EN
         public Usuario Usuario { get; set; }
     }
 
-
-
 }
