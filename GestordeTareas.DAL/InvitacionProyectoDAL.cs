@@ -75,5 +75,9 @@ namespace GestordeTareas.DAL
                                        && i.IdProyecto == idProyecto
                                        && i.Estado == "Pendiente");
         }
+<<<<<<< HEAD
+
+=======
+>>>>>>> 6f3904e1ef769397f15b3f638d17e031b23152fb
     }
 }

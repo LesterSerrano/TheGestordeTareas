@@ -61,7 +61,7 @@ CREATE TABLE Proyecto (
 	CodigoAcceso NVARCHAR(50) NOT NULL UNIQUE,
 	FechaFinalizacion DATETIME NOT NULL,
 	IdUsuario INT NOT NULL FOREIGN KEY REFERENCES Usuario(Id),
-	--CONSTRAINT UQ_CodigoAcceso UNIQUE (CodigoAcceso)
+	-- CONSTRAINT UQ_CodigoAcceso UNIQUE (CodigoAcceso)
 );
 
 GO
@@ -139,7 +139,7 @@ CREATE TABLE ElegirTarea (
     FechaAsignacion DATETIME NOT NULL DEFAULT GETDATE(),
     IdTarea INT NOT NULL FOREIGN KEY REFERENCES Tarea(Id),
     IdUsuario INT NOT NULL FOREIGN KEY REFERENCES Usuario(Id),
-   	IdProyecto INT NOT NULL FOREIGN KEY REFERENCES Proyecto(Id),
+   	-- IdProyecto INT NOT NULL FOREIGN KEY REFERENCES Proyecto(Id),aqui no debe de ir
 );
 
 

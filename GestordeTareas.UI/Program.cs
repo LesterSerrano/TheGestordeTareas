@@ -9,15 +9,28 @@ using GestordeTareas.DAL.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using AutoMapper;
 using System.Reflection;
+<<<<<<< HEAD
+using GestordeTareas.UI.profiles;
+=======
 using GestordeTareas.BL.Services;
+>>>>>>> 6f3904e1ef769397f15b3f638d17e031b23152fb
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("GestordeTareasUIContextConnection") ?? throw new InvalidOperationException("Connection string 'GestordeTareasUIContextConnection' not found.");
 
 builder.Services.AddDbContext<ContextoBD>(options => options.UseSqlServer(connectionString));
+<<<<<<< HEAD
+builder.Services.AddDbContext<GestordeTareasUIContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<GestordeTareasUIContext>();
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddAutoMapper(AutoMapperRegistry.GetProfiles());
+ //para los perfiles en otros proyectos
+var configuration = builder.Configuration;
+=======
 //builder.Services.AddDbContext<GestordeTareasUIContext>(options => options.UseSqlServer(connectionString));
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<GestordeTareasUIContext>();
 //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+>>>>>>> 6f3904e1ef769397f15b3f638d17e031b23152fb
 
 //REGISTRO DE INTERFACES
 // DAL
