@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using AutoMapper;
 using System.Reflection;
 using GestordeTareas.BL.Services;
+using GestordeTareas.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("GestordeTareasUIContextConnection") ?? throw new InvalidOperationException("Connection string 'GestordeTareasUIContextConnection' not found.");
@@ -20,7 +21,6 @@ builder.Services.AddDbContext<ContextoBD>(options => options.UseSqlServer(connec
 //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 //REGISTRO DE INTERFACES
-// DAL
 builder.Services.AddScoped<IProyectoDAL, ProyectoDAL>();
 builder.Services.AddScoped<ITareaDAL, TareaDAL>();
 builder.Services.AddScoped<ICargoDAL, CargoDAL>();
@@ -31,6 +31,10 @@ builder.Services.AddScoped<IEstadoTareaDAL, EstadoTareaDAL>();
 builder.Services.AddScoped<IUsuarioDAL, UsuarioDAL>();
 builder.Services.AddScoped<IInvitacionProyectoDAL, InvitacionProyectoDAL>();
 builder.Services.AddScoped<ISeguridadService, SeguridadService>();
+builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+builder.Services.AddScoped<IUserCreateService, UserCreateService>();
+builder.Services.AddScoped <ILoginService, LoginService>();
+
 
 // REGISTRO DE BL
 builder.Services.AddControllersWithViews();
@@ -108,7 +112,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication(); // poner en uso la autenticaci�n 
+app.UseAuthentication(); 
 
 app.UseAuthorization();
 

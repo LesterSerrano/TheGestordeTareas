@@ -34,11 +34,13 @@ namespace GestordeTareas.DAL
             userDb.Nombre = usuario.Nombre;
             userDb.Apellido = usuario.Apellido;
             userDb.Telefono = usuario.Telefono;
-            userDb.Pass = usuario.Pass;
             userDb.Status = usuario.Status;
             userDb.NombreUsuario = usuario.NombreUsuario;
 
-            _dbContext.Usuario.Update(userDb);
+            if (!string.IsNullOrEmpty(usuario.Pass))
+            {
+                userDb.Pass = usuario.Pass;
+            }
             return await _dbContext.SaveChangesAsync();
         }
 
