@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GestordeTaras.EN;
 using GestordeTareas.DAL.Interfaces;
+using GestordeTareas.DAL.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -18,59 +19,36 @@ namespace GestordeTareas.DAL
             _logger = logger;
             _contextoBD = contextoBD;
         }
-        public async Task<ComentarioTarea> CrearComentarioAsync(ComentarioTarea comentarioTarea)
+        public async Task<ComentarioTarea> CrearComentarioAsync(ComentarioTarea _coment)
         {
             try
             {
-                // Vaqui van todas las vALIDACIONES -------------------------------
-                if (comentarioTarea == null)
-                {
-                    _logger.LogError("El comentario recibido es nulo.");
-                    throw new ArgumentNullException(nameof(comentarioTarea));
-                }
+                // ---------- aqiui ocupo lo de los utilis  pero para vaidaciones generales netamente de la clase ----------
+                ValidateComentarioTarea.Validar(_coment, _logger);
 
-                if (string.IsNullOrWhiteSpace(comentarioTarea.Comentario))
-                {
-                    _logger.LogWarning("Comentario vacío detectado.");
-                    throw new ArgumentException("El texto del comentario no puede estar vacío.");
-                }
+                // ---------- FECHA DE CREACIÓN ----------
+                _coment.FechaCreacion = DateTime.UtcNow;
 
-                // -------------- NORMALIZAR EL TEXTO ------------------------
-                comentarioTarea.Comentario = comentarioTarea.Comentario.Trim();
-
-                comentarioTarea.FechaCreacion = DateTime.UtcNow;
-                // Validar IdComentarioPadre:
-                // Si el comentario viene marcado como respuesta (tiene un IdComentarioPadre),
-                // pero el valor es menor o igual a 0, significa que es un ID inválido.
-                // Los Ids en la base de datos siempre son positivos, por lo que valores como 0 o negativos
-                // no representan un comentario existente. En ese caso, se registra una advertencia
-                // y se limpia el campo para tratarlo como un comentario raíz (sin padre).
-                if (comentarioTarea.IdComentarioPadre.HasValue && comentarioTarea.IdComentarioPadre <= 0)
+                // ---------- VALIDAR QUE EL PADRE EXISTA (si trae uno válido) ----------
+                if (_coment.IdComentarioPadre.HasValue)
                 {
-                    _logger.LogWarning("IdComentarioPadre es inválido.");
-                    comentarioTarea.IdComentarioPadre = null;
-                }
-                if (comentarioTarea.Estado == 0)
-                    comentarioTarea.Estado = 1;
-                if (comentarioTarea.IdComentarioPadre.HasValue)
-                {
-                    var existePadre = await _contextoBD.ComentarioTarea
-                        .AnyAsync(c => c.Id == comentarioTarea.IdComentarioPadre);
+                    bool existePadre = await _contextoBD.ComentarioTarea
+                        .AnyAsync(c => c.Id == _coment.IdComentarioPadre);
 
                     if (!existePadre)
                     {
-                        _logger.LogWarning("El comentario padre con ID {Id} no existe.", comentarioTarea.IdComentarioPadre);
+                        _logger.LogWarning("El comentario padre con ID {Id} no existe.", _coment.IdComentarioPadre);
                         throw new ArgumentException("El comentario padre no existe.");
                     }
                 }
 
-
-                await _contextoBD.ComentarioTarea.AddAsync(comentarioTarea);
+                // ---------- INSERTAR EN BASE DE DATOS ----------
+                await _contextoBD.ComentarioTarea.AddAsync(_coment);
                 await _contextoBD.SaveChangesAsync();
 
-                _logger.LogInformation("Comentario creado correctamente con ID {Id}.", comentarioTarea.Id);
+                _logger.LogInformation("Comentario creado correctamente con ID {Id}.", _coment.Id);
 
-                return comentarioTarea;
+                return _coment;
             }
             catch (Exception ex)
             {
@@ -78,7 +56,45 @@ namespace GestordeTareas.DAL
                 throw;
             }
         }
+        public async Task<bool> EditarComentarioAsync(ComentarioTarea _coment)
+        {
+            try
+            {
+                ValidateComentarioTarea.Validar(_coment, _logger);
 
+                // ---------- VALIDAR ID ----------
+                if (_coment.Id <= 0)
+                {
+                    _logger.LogWarning("ID de comentario inválido: {Id}", _coment.Id);
+                    throw new ArgumentException("El ID del comentario es inválido.");
+                }
+
+                // ---------- OBTENER DE BD ----------
+                var comentarioBD = await _contextoBD.ComentarioTarea
+                    .FirstOrDefaultAsync(c => c.Id == _coment.Id);
+
+                if (comentarioBD == null)
+                {
+                    _logger.LogWarning("No se encontró un comentario con ID {Id} para editar.", _coment.Id);
+                    return false;
+                }
+
+                // ---------- ACTUALIZAR SOLO CAMPOS PERMITIDOS ----------
+                comentarioBD.Comentario = _coment.Comentario;
+                comentarioBD.FechaModificacion = DateTime.UtcNow;
+
+                // ---------- GUARDAR EN BD ----------
+                await _contextoBD.SaveChangesAsync();
+
+                _logger.LogInformation("Comentario {Id} editado correctamente.", _coment.Id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al editar el comentario con ID {Id}.", _coment?.Id);
+                throw;
+            }
+        }
 
     }
 }

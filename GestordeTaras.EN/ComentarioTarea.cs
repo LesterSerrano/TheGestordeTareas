@@ -21,6 +21,8 @@ namespace GestordeTaras.EN
 
         [Required]
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        //fecga de modificacion
+        public DateTime? FechaModificacion { get; set; }
 
         public int? IdComentarioPadre { get; set; }
 

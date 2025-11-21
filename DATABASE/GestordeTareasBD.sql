@@ -93,6 +93,8 @@ CREATE TABLE ComentarioTarea (
 
     Comentario NVARCHAR(500) NOT NULL,
     FechaCreacion DATETIME NOT NULL DEFAULT GETDATE(),
+    -----Fecha de modificacion
+    FechaModificacion DATETIME NULL,
 
     IdComentarioPadre INT NULL,   -- Respuestas / hilo
     Estado TINYINT NOT NULL DEFAULT 1, -- 1=Activo, 0=Eliminado
